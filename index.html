@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PantryPal</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>
+        <span id="logo-emoji">🥘</span>
+        <span class="pantry">Pantry</span><span class="pal">Pal</span>
+        <span id="header-name">Johnson Nguyen</span>
+      </h1>
+      <p>Find your Next Recipe with Your Pantry</p>
+    </header>
+
+    <div class="container">
+      <p id="container-header">Enter your ingredients here</p>
+      <div class="input-section">
+        <input
+          type="text"
+          id="ingredient-input"
+          placeholder="e.g. eggs, spinach, garlic"
+        />
+        <button onclick="addIngredient()">Add</button>
+      </div>
+
+      <div id="ingredient-tags"></div>
+
+      <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
+
+      <div id="results"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
