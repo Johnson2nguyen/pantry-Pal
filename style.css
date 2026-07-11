@@ -12,6 +12,7 @@ body {
   background-image: url("pantryBackground.png");
   background-repeat: repeat;
   background-size: 600px;
+  overflow-x: hidden;
 }
 
 body::before {
@@ -62,18 +63,9 @@ header h1 {
 
 header p {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 20px;
+  font-size: 15px;
   margin-top: 6px;
   margin-bottom: 0;
-}
-
-#header-name {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #ffffff;
-  font-size: 24px;
 }
 
 #logo-emoji {
@@ -84,6 +76,17 @@ header p {
   transform: translateY(-50%);
 }
 
+#header-name {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.5px;
+}
+
 .pantry {
   color: #e8a838;
 }
@@ -91,24 +94,105 @@ header p {
   color: #ffffff;
 }
 
-.container {
+#app {
   position: relative;
   z-index: 1;
-  max-width: 700px;
-  margin: 40px auto;
+  display: flex;
+  min-height: calc(100vh - 120px);
+  align-items: stretch;
+  overflow: visible;
+}
+
+#left-panel {
+  position: relative;
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    width 0.5s ease,
+    opacity 0.5s ease;
+  flex-shrink: 0;
+  background: rgba(20, 16, 12, 0.93);
+  align-self: stretch;
+}
+
+#left-panel.visible {
+  width: 260px;
+  opacity: 1;
+  overflow: visible;
+}
+
+#left-panel.collapsed #recipe-list {
+  display: none;
+}
+
+#left-panel.has-recipes::after {
+  content: "‹";
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 60px;
+  background: rgba(20, 16, 12, 0.93);
+  border-radius: 0 6px 6px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#left-panel.has-recipes.collapsed::after {
+  content: "›";
+}
+
+#left-panel.visible::after:hover {
+  background: #e8a838;
+  color: #ffffff;
+}
+
+#recipe-list {
+  padding: 24px 16px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+#right-panel {
+  flex: 1;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transition: all 0.5s ease;
+}
+
+#search-view {
   background: rgba(255, 252, 245, 0.95);
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.6);
+  width: 100%;
+  max-width: 700px;
 }
 
-#container-header {
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  color: #111111;
-  margin-bottom: 20px;
+#detail-view {
+  display: none;
+  background: rgba(255, 252, 245, 0.95);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  width: 100%;
+  max-width: 2000px;
+  margin-left: 40px;
+}
+
+#detail-view.visible {
+  display: block;
 }
 
 p {
@@ -116,38 +200,51 @@ p {
   margin-bottom: 24px;
 }
 
-.input-section {
-  display: flex;
-  gap: 10px;
+#input-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3a2e26;
   margin-bottom: 16px;
 }
 
-input {
-  flex: 1;
+.input-section {
+  position: relative;
+  margin-bottom: 16px;
+  margin-top: 12px;
+}
+
+.input-section input {
+  width: 100%;
   background: #4a4a4a;
   border: 1px solid #3f3f3f;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 10px 80px 10px 14px;
   font-size: 16px;
   color: #ffffff;
   outline: none;
+  font-family: "Inter", sans-serif;
 }
 
-input::placeholder {
+.input-section input::placeholder {
   color: #8e8ea0;
 }
 
-button {
-  padding: 10px 20px;
+#add-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 6px;
   background: #e8a838;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
   cursor: pointer;
+  font-family: "Inter", sans-serif;
 }
 
-button:hover {
+#add-btn:hover {
   background: #d4942a;
 }
 
@@ -155,9 +252,12 @@ button:hover {
   width: 100%;
   padding: 14px;
   font-size: 18px;
-  margin-bottom: 32px;
   background: #3a2e26;
   color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
 }
 
 #find-btn:hover {
@@ -193,35 +293,101 @@ button:hover {
   color: #c0392b;
 }
 
-.recipe-card {
-  border: 1px solid #e8d5b0;
-  border-radius: 10px;
-  padding: 24px;
-  margin-bottom: 20px;
-  background: rgba(255, 252, 245, 0.98);
-}
-
-.recipe-card h2 {
-  margin-bottom: 12px;
+#back-btn {
+  background: none;
+  border: none;
   color: #3a2e26;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Inter", sans-serif;
 }
 
-.recipe-card h3 {
-  margin-top: 16px;
+#back-btn:hover {
+  color: #e8a838;
+}
+
+.recipe-list-item {
+  padding: 16px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease;
+}
+
+.recipe-list-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.recipe-list-item.active {
+  background: rgba(232, 168, 56, 0.12);
+  border-left: 3px solid #e8a838;
+}
+
+.recipe-list-item h3 {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.match-bar-bg {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  height: 4px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.match-bar-fill {
+  background: #e8a838;
+  border-radius: 20px;
+  height: 4px;
+  transition: width 0.6s ease;
+}
+
+.match-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.recipe-detail-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3a2e26;
+  margin-bottom: 20px;
+}
+
+.recipe-detail h3 {
+  margin-top: 20px;
   margin-bottom: 8px;
   color: #b5a090;
-  font-size: 14px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.recipe-card ul,
-.recipe-card ol {
+.recipe-detail ul,
+.recipe-detail ol {
   padding-left: 20px;
   color: #6b5a4e;
-  line-height: 1.8;
+  line-height: 1.9;
 }
 
 .missing {
   color: #c0392b;
+}
+
+.left-panel-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
 }

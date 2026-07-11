@@ -13,25 +13,34 @@
         <span class="pantry">Pantry</span><span class="pal">Pal</span>
         <span id="header-name">Johnson Nguyen</span>
       </h1>
-      <p>Find your Next Recipe with Your Pantry</p>
+      <p>Turn what's in your kitchen into your next meal</p>
     </header>
 
-    <div class="container">
-      <p id="container-header">Enter your ingredients here</p>
-      <div class="input-section">
-        <input
-          type="text"
-          id="ingredient-input"
-          placeholder="e.g. eggs, spinach, garlic"
-        />
-        <button onclick="addIngredient()">Add</button>
+    <div id="app">
+      <div id="left-panel">
+        <div id="recipe-list"></div>
       </div>
 
-      <div id="ingredient-tags"></div>
+      <div id="right-panel">
+        <div id="search-view">
+          <p id="input-label">Enter your ingredients here</p>
+          <div class="input-section">
+            <input
+              type="text"
+              id="ingredient-input"
+              placeholder="e.g. eggs, spinach, garlic"
+            />
+            <button onclick="addIngredient()" id="add-btn">Add</button>
+          </div>
+          <div id="ingredient-tags"></div>
+          <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
+        </div>
 
-      <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
-
-      <div id="results"></div>
+        <div id="detail-view">
+          <button id="back-btn" onclick="goBack()">← Back</button>
+          <div id="recipe-detail"></div>
+        </div>
+      </div>
     </div>
 
     <script src="script.js"></script>

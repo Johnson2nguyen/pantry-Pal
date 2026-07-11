@@ -1,4 +1,5 @@
 let ingredients = [];
+let matchedRecipes = [];
 
 const recipes = [
   {
@@ -37,12 +38,10 @@ const recipes = [
 function addIngredient() {
   const input = document.getElementById("ingredient-input");
   const value = input.value.trim().toLowerCase();
-
   if (!value || ingredients.includes(value)) {
     input.value = "";
     return;
   }
-
   ingredients.push(value);
   input.value = "";
   renderTags();
@@ -56,7 +55,6 @@ function removeIngredient(item) {
 function renderTags() {
   const container = document.getElementById("ingredient-tags");
   container.innerHTML = "";
-
   ingredients.forEach((item) => {
     const tag = document.createElement("div");
     tag.className = "tag";
@@ -66,50 +64,130 @@ function renderTags() {
 }
 
 function findRecipes() {
-  const results = document.getElementById("results");
+  const resultsDiv = document.getElementById("recipe-list");
 
   if (ingredients.length === 0) {
-    results.innerHTML = "<p>Please add at least one ingredient.</p>";
+    resultsDiv.innerHTML =
+      "<p style='color:rgba(255,255,255,0.4);padding:12px'>Please add at least one ingredient.</p>";
     return;
   }
 
-  const matched = recipes.filter((recipe) =>
-    recipe.ingredients.some((ing) => ingredients.includes(ing)),
-  );
-
-  if (matched.length === 0) {
-    results.innerHTML =
-      "<p>No recipes found with those ingredients. Try adding more!</p>";
-    return;
-  }
-
-  results.innerHTML = matched
+  matchedRecipes = recipes
+    .filter((recipe) =>
+      recipe.ingredients.some((ing) => ingredients.includes(ing)),
+    )
     .map((recipe) => {
       const have = recipe.ingredients.filter((ing) =>
         ingredients.includes(ing),
       );
-      const missing = recipe.ingredients.filter(
-        (ing) => !ingredients.includes(ing),
+      const percent = Math.round(
+        (have.length / recipe.ingredients.length) * 100,
       );
-
-      return `
-      <div class="recipe-card">
-        <h2>${recipe.name}</h2>
-        <h3>Ingredients You Have</h3>
-        <ul>${have.map((i) => `<li>${i}</li>`).join("")}</ul>
-        ${
-          missing.length > 0
-            ? `<h3>Missing Ingredients</h3>
-          <ul>${missing.map((i) => `<li class="missing">${i}</li>`).join("")}</ul>`
-            : ""
-        }
-        <h3>Steps</h3>
-        <ol>${recipe.steps.map((s) => `<li>${s}</li>`).join("")}</ol>
-      </div>
-    `;
+      return {
+        ...recipe,
+        have,
+        missing: recipe.ingredients.filter((ing) => !ingredients.includes(ing)),
+        percent,
+      };
     })
-    .join("");
+    .sort((a, b) => b.percent - a.percent);
+
+  if (matchedRecipes.length === 0) {
+    resultsDiv.innerHTML =
+      "<p style='color:rgba(255,255,255,0.4);padding:12px'>No recipes found. Try adding more ingredients!</p>";
+    return;
+  }
+
+  document.getElementById("left-panel").classList.add("visible");
+  document.getElementById("left-panel").classList.add("has-recipes");
+
+  resultsDiv.innerHTML = `
+    <div class="left-panel-title">Recipes (${matchedRecipes.length})</div>
+    ${matchedRecipes
+      .map(
+        (recipe, index) => `
+      <div class="recipe-list-item" onclick="showRecipe(${index})" id="recipe-item-${index}">
+        <h3>${recipe.name}</h3>
+        <div class="match-bar-bg">
+          <div class="match-bar-fill" style="width: ${recipe.percent}%"></div>
+        </div>
+        <span class="match-label">${recipe.percent}% match · ${recipe.have.length}/${recipe.ingredients.length} ingredients</span>
+      </div>
+    `,
+      )
+      .join("")}
+  `;
 }
+
+function showRecipe(index) {
+  const recipe = matchedRecipes[index];
+
+  document
+    .querySelectorAll(".recipe-list-item")
+    .forEach((el) => el.classList.remove("active"));
+  document.getElementById(`recipe-item-${index}`).classList.add("active");
+
+  document.getElementById("search-view").style.display = "none";
+  document.getElementById("detail-view").classList.add("visible");
+
+  document.getElementById("recipe-detail").innerHTML = `
+    <div class="recipe-detail">
+      <div class="recipe-detail-title">${recipe.name}</div>
+      <h3>Ingredients You Have</h3>
+      <ul>${recipe.have.map((i) => `<li>${i}</li>`).join("")}</ul>
+      ${
+        recipe.missing.length > 0
+          ? `<h3>Missing Ingredients</h3>
+           <ul>${recipe.missing.map((i) => `<li class="missing">${i}</li>`).join("")}</ul>`
+          : ""
+      }
+      <h3>Steps</h3>
+      <ol>${recipe.steps.map((s) => `<li>${s}</li>`).join("")}</ol>
+    </div>
+  `;
+}
+
+function goBack() {
+  document.getElementById("search-view").style.display = "block";
+  document.getElementById("detail-view").classList.remove("visible");
+  document
+    .querySelectorAll(".recipe-list-item")
+    .forEach((el) => el.classList.remove("active"));
+}
+
+let panelCollapsed = false;
+
+function togglePanel() {
+  const panel = document.getElementById("left-panel");
+  const recipeList = document.getElementById("recipe-list");
+  const searchView = document.getElementById("search-view");
+  panelCollapsed = !panelCollapsed;
+
+  if (panelCollapsed) {
+    recipeList.style.display = "none";
+    panel.style.width = "0";
+    panel.style.overflow = "visible";
+    panel.classList.add("collapsed");
+    searchView.style.maxWidth = "700px";
+    searchView.style.margin = "0 auto";
+  } else {
+    panel.style.width = "260px";
+    panel.classList.remove("collapsed");
+    searchView.style.maxWidth = "";
+    searchView.style.margin = "";
+    setTimeout(() => {
+      recipeList.style.display = "block";
+      panel.style.overflow = "visible";
+    }, 500);
+  }
+}
+
+document.getElementById("left-panel").addEventListener("click", function (e) {
+  const rect = this.getBoundingClientRect();
+  if (e.clientX > rect.right - 20) {
+    togglePanel();
+  }
+});
 
 document.getElementById("ingredient-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") addIngredient();
