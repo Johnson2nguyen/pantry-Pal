@@ -1,5 +1,8 @@
 let ingredients = [];
 let matchedRecipes = [];
+let currentRecipeIndex = null;
+let savedRecipes = JSON.parse(localStorage.getItem("savedRecipes")) || [];
+let panelCollapsed = false;
 
 const recipes = [
   {
@@ -120,7 +123,24 @@ function findRecipes() {
 }
 
 function showRecipe(index) {
+  currentRecipeIndex = index;
   const recipe = matchedRecipes[index];
+  const alreadySaved = savedRecipes.some((r) => r.name === recipe.name);
+  const favBtn = document.getElementById("fav-btn");
+  favBtn.textContent = alreadySaved ? "✕ Remove from Saved" : "♡ Save Recipe";
+  alreadySaved
+    ? favBtn.classList.add("favorited")
+    : favBtn.classList.remove("favorited");
+  favBtn.onclick = toggleFavorite;
+
+  const detailView = document.getElementById("detail-view");
+  if (panelCollapsed) {
+    detailView.style.marginRight = "auto";
+    detailView.style.marginLeft = "auto";
+  } else {
+    detailView.style.marginRight = "100px";
+    detailView.style.marginLeft = "0px";
+  }
 
   document
     .querySelectorAll(".recipe-list-item")
@@ -128,7 +148,7 @@ function showRecipe(index) {
   document.getElementById(`recipe-item-${index}`).classList.add("active");
 
   document.getElementById("search-view").style.display = "none";
-  document.getElementById("detail-view").classList.add("visible");
+  detailView.classList.add("visible");
 
   document.getElementById("recipe-detail").innerHTML = `
     <div class="recipe-detail">
@@ -147,6 +167,57 @@ function showRecipe(index) {
   `;
 }
 
+function showSavedRecipe(index) {
+  const recipe = savedRecipes[index];
+  toggleSaved();
+
+  const detailView = document.getElementById("detail-view");
+  const leftPanelVisible = document
+    .getElementById("left-panel")
+    .classList.contains("visible");
+
+  if (leftPanelVisible && !panelCollapsed) {
+    detailView.style.marginRight = "100px";
+    detailView.style.marginLeft = "0px";
+  } else {
+    detailView.style.marginRight = "auto";
+    detailView.style.marginLeft = "auto";
+  }
+
+  document.getElementById("search-view").style.display = "none";
+  detailView.classList.add("visible");
+
+  const favBtn = document.getElementById("fav-btn");
+  favBtn.textContent = "✕ Remove from Saved";
+  favBtn.classList.add("favorited");
+  currentRecipeIndex = null;
+
+  favBtn.onclick = () => {
+    removeSaved(recipe.name);
+    goBack();
+  };
+
+  document.getElementById("recipe-detail").innerHTML = `
+    <div class="recipe-detail">
+      <div class="recipe-detail-title">${recipe.name}</div>
+      ${
+        recipe.have
+          ? `<h3>Ingredients You Have</h3>
+      <ul>${recipe.have.map((i) => `<li>${i}</li>`).join("")}</ul>`
+          : ""
+      }
+      ${
+        recipe.missing && recipe.missing.length > 0
+          ? `<h3>Missing Ingredients</h3>
+           <ul>${recipe.missing.map((i) => `<li class="missing">${i}</li>`).join("")}</ul>`
+          : ""
+      }
+      <h3>Steps</h3>
+      <ol>${recipe.steps.map((s) => `<li>${s}</li>`).join("")}</ol>
+    </div>
+  `;
+}
+
 function goBack() {
   document.getElementById("search-view").style.display = "block";
   document.getElementById("detail-view").classList.remove("visible");
@@ -155,12 +226,11 @@ function goBack() {
     .forEach((el) => el.classList.remove("active"));
 }
 
-let panelCollapsed = false;
-
 function togglePanel() {
   const panel = document.getElementById("left-panel");
   const recipeList = document.getElementById("recipe-list");
   const searchView = document.getElementById("search-view");
+  const detailView = document.getElementById("detail-view");
   panelCollapsed = !panelCollapsed;
 
   if (panelCollapsed) {
@@ -170,15 +240,88 @@ function togglePanel() {
     panel.classList.add("collapsed");
     searchView.style.maxWidth = "700px";
     searchView.style.margin = "0 auto";
+    detailView.style.marginRight = "auto";
+    detailView.style.marginLeft = "auto";
   } else {
     panel.style.width = "260px";
     panel.classList.remove("collapsed");
     searchView.style.maxWidth = "";
     searchView.style.margin = "";
+    detailView.style.marginRight = "100px";
+    detailView.style.marginLeft = "0px";
     setTimeout(() => {
       recipeList.style.display = "block";
       panel.style.overflow = "visible";
     }, 500);
+  }
+}
+
+function saveFavorites() {
+  localStorage.setItem("savedRecipes", JSON.stringify(savedRecipes));
+}
+
+function toggleFavorite() {
+  const recipe = matchedRecipes[currentRecipeIndex];
+  const favBtn = document.getElementById("fav-btn");
+  const alreadySaved = savedRecipes.some((r) => r.name === recipe.name);
+
+  if (alreadySaved) {
+    savedRecipes = savedRecipes.filter((r) => r.name !== recipe.name);
+    favBtn.textContent = "♡ Save Recipe";
+    favBtn.classList.remove("favorited");
+  } else {
+    savedRecipes.push(recipe);
+    favBtn.textContent = "✕ Remove from Saved";
+    favBtn.classList.add("favorited");
+  }
+
+  saveFavorites();
+  renderSavedList();
+}
+
+function removeSaved(name) {
+  savedRecipes = savedRecipes.filter((r) => r.name !== name);
+  saveFavorites();
+  renderSavedList();
+
+  const favBtn = document.getElementById("fav-btn");
+  if (favBtn && matchedRecipes[currentRecipeIndex]?.name === name) {
+    favBtn.textContent = "♡ Save Recipe";
+    favBtn.classList.remove("favorited");
+  }
+}
+
+function renderSavedList() {
+  const list = document.getElementById("saved-list");
+
+  if (savedRecipes.length === 0) {
+    list.innerHTML = "<div class='saved-empty'>No saved recipes yet.</div>";
+    return;
+  }
+
+  list.innerHTML = savedRecipes
+    .map(
+      (recipe, index) => `
+    <div class="saved-item" onclick="showSavedRecipe(${index})">
+      <span class="saved-item-name">${recipe.name}</span>
+      <button class="saved-item-remove" onclick="event.stopPropagation(); removeSaved('${recipe.name}')">×</button>
+    </div>
+  `,
+    )
+    .join("");
+}
+
+let savedPanelOpen = false;
+
+function toggleSaved() {
+  const panel = document.getElementById("saved-panel");
+  savedPanelOpen = !savedPanelOpen;
+
+  if (savedPanelOpen) {
+    panel.classList.add("visible");
+    renderSavedList();
+  } else {
+    panel.classList.remove("visible");
   }
 }
 
@@ -192,3 +335,7 @@ document.getElementById("left-panel").addEventListener("click", function (e) {
 document.getElementById("ingredient-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") addIngredient();
 });
+
+if (savedRecipes.length > 0) {
+  document.getElementById("saved-btn").classList.add("visible");
+}

@@ -16,6 +16,16 @@
       <p>Turn what's in your kitchen into your next meal</p>
     </header>
 
+    <div id="saved-btn" onclick="toggleSaved()">📖 Saved Recipes</div>
+
+    <div id="saved-panel">
+      <div id="saved-panel-header">
+        <span>📖 Saved Recipes</span>
+        <button id="close-saved-btn" onclick="toggleSaved()">✕</button>
+      </div>
+      <div id="saved-list"></div>
+    </div>
+
     <div id="app">
       <div id="left-panel">
         <div id="recipe-list"></div>
@@ -37,7 +47,12 @@
         </div>
 
         <div id="detail-view">
-          <button id="back-btn" onclick="goBack()">← Back</button>
+          <div id="detail-top-bar">
+            <button id="back-btn" onclick="goBack()">← Back</button>
+            <button id="fav-btn" onclick="toggleFavorite()">
+              ♡ Save Recipe
+            </button>
+          </div>
           <div id="recipe-detail"></div>
         </div>
       </div>
