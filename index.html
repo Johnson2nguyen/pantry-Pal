@@ -16,12 +16,27 @@
       <p>Turn what's in your kitchen into your next meal</p>
     </header>
 
-    <div id="saved-btn" onclick="toggleSaved()">📖 Saved Recipes</div>
+    <div id="saved-btn" onclick="toggleSaved()">
+      📖 Saved Recipes <span id="saved-count"></span>
+    </div>
 
     <div id="saved-panel">
       <div id="saved-panel-header">
         <span>📖 Saved Recipes</span>
-        <button id="close-saved-btn" onclick="toggleSaved()">✕</button>
+        <div id="saved-header-actions">
+          <button id="sort-btn" onclick="toggleSortMenu()">⇅ Sort</button>
+          <button id="close-saved-btn" onclick="toggleSaved()">✕</button>
+        </div>
+      </div>
+      <div id="sort-menu">
+        <div class="sort-option" onclick="sortSaved('az')">
+          <span>Alphabetical</span>
+          <span id="az-arrow">↑</span>
+        </div>
+        <div class="sort-option" onclick="sortSaved('recent')">
+          <span>Most Recent</span>
+          <span id="recent-arrow">↑</span>
+        </div>
       </div>
       <div id="saved-list"></div>
     </div>
@@ -42,7 +57,16 @@
             />
             <button onclick="addIngredient()" id="add-btn">Add</button>
           </div>
-          <div id="ingredient-tags"></div>
+          <div id="tags-row">
+            <button
+              id="clear-btn"
+              onclick="clearIngredients()"
+              title="Clear all ingredients"
+            >
+              ✕
+            </button>
+            <div id="ingredient-tags"></div>
+          </div>
           <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
         </div>
 

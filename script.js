@@ -3,6 +3,10 @@ let matchedRecipes = [];
 let currentRecipeIndex = null;
 let savedRecipes = JSON.parse(localStorage.getItem("savedRecipes")) || [];
 let panelCollapsed = false;
+let savedPanelOpen = false;
+let currentSort = "recent";
+let sortMenuOpen = false;
+let sortDirections = { az: "asc", recent: "desc" };
 
 const recipes = [
   {
@@ -57,7 +61,15 @@ function removeIngredient(item) {
 
 function renderTags() {
   const container = document.getElementById("ingredient-tags");
+  const clearBtn = document.getElementById("clear-btn");
   container.innerHTML = "";
+
+  if (ingredients.length === 0) {
+    clearBtn.style.display = "none";
+    return;
+  }
+
+  clearBtn.style.display = "block";
   ingredients.forEach((item) => {
     const tag = document.createElement("div");
     tag.className = "tag";
@@ -169,7 +181,7 @@ function showRecipe(index) {
 
 function showSavedRecipe(index) {
   const recipe = savedRecipes[index];
-  toggleSaved();
+  if (savedPanelOpen) toggleSaved();
 
   const detailView = document.getElementById("detail-view");
   const leftPanelVisible = document
@@ -203,7 +215,7 @@ function showSavedRecipe(index) {
       ${
         recipe.have
           ? `<h3>Ingredients You Have</h3>
-      <ul>${recipe.have.map((i) => `<li>${i}</li>`).join("")}</ul>`
+        <ul>${recipe.have.map((i) => `<li>${i}</li>`).join("")}</ul>`
           : ""
       }
       ${
@@ -270,12 +282,13 @@ function toggleFavorite() {
     favBtn.textContent = "♡ Save Recipe";
     favBtn.classList.remove("favorited");
   } else {
-    savedRecipes.push(recipe);
+    savedRecipes.push({ ...recipe, savedAt: new Date().toISOString() });
     favBtn.textContent = "✕ Remove from Saved";
     favBtn.classList.add("favorited");
   }
 
   saveFavorites();
+  updateSavedCount();
   renderSavedList();
 }
 
@@ -283,6 +296,7 @@ function removeSaved(name) {
   savedRecipes = savedRecipes.filter((r) => r.name !== name);
   saveFavorites();
   renderSavedList();
+  updateSavedCount();
 
   const favBtn = document.getElementById("fav-btn");
   if (favBtn && matchedRecipes[currentRecipeIndex]?.name === name) {
@@ -299,19 +313,35 @@ function renderSavedList() {
     return;
   }
 
-  list.innerHTML = savedRecipes
+  let sorted = [...savedRecipes];
+
+  if (currentSort === "az") {
+    sorted.sort((a, b) =>
+      sortDirections.az === "asc"
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name),
+    );
+  } else {
+    sorted =
+      sortDirections.recent === "asc"
+        ? [...savedRecipes]
+        : [...savedRecipes].reverse();
+  }
+
+  list.innerHTML = sorted
     .map(
-      (recipe, index) => `
-    <div class="saved-item" onclick="showSavedRecipe(${index})">
-      <span class="saved-item-name">${recipe.name}</span>
+      (recipe) => `
+    <div class="saved-item" onclick="showSavedRecipe(${savedRecipes.indexOf(recipe)})">
+      <div class="saved-item-info">
+        <span class="saved-item-name">${recipe.name}</span>
+        <span class="saved-item-date">${recipe.savedAt ? new Date(recipe.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}</span>
+      </div>
       <button class="saved-item-remove" onclick="event.stopPropagation(); removeSaved('${recipe.name}')">×</button>
     </div>
   `,
     )
     .join("");
 }
-
-let savedPanelOpen = false;
 
 function toggleSaved() {
   const panel = document.getElementById("saved-panel");
@@ -323,6 +353,31 @@ function toggleSaved() {
   } else {
     panel.classList.remove("visible");
   }
+}
+
+function toggleSortMenu() {
+  const menu = document.getElementById("sort-menu");
+  sortMenuOpen = !sortMenuOpen;
+  sortMenuOpen
+    ? menu.classList.add("visible")
+    : menu.classList.remove("visible");
+}
+
+function sortSaved(type) {
+  sortDirections[type] = sortDirections[type] === "asc" ? "desc" : "asc";
+  currentSort = type;
+
+  document.getElementById("az-arrow").textContent =
+    sortDirections.az === "asc" ? "↑" : "↓";
+  document.getElementById("recent-arrow").textContent =
+    sortDirections.recent === "asc" ? "↑" : "↓";
+
+  document
+    .querySelectorAll(".sort-option")
+    .forEach((el) => el.classList.remove("active"));
+  event.currentTarget.classList.add("active");
+
+  renderSavedList();
 }
 
 document.getElementById("left-panel").addEventListener("click", function (e) {
@@ -339,3 +394,21 @@ document.getElementById("ingredient-input").addEventListener("keydown", (e) => {
 if (savedRecipes.length > 0) {
   document.getElementById("saved-btn").classList.add("visible");
 }
+
+function clearIngredients() {
+  ingredients = [];
+  renderTags();
+  document.getElementById("ingredient-input").value = "";
+}
+
+function updateSavedCount() {
+  const badge = document.getElementById("saved-count");
+  if (savedRecipes.length > 0) {
+    badge.textContent = savedRecipes.length;
+    badge.style.display = "inline";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+updateSavedCount();
