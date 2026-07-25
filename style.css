@@ -426,9 +426,9 @@ p {
   background: rgba(30, 24, 18, 0.94);
   color: #e8a838;
   border: 1px solid #1a1a1a;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 12px;
   font-family: "Inter", sans-serif;
   cursor: pointer;
   display: block;
@@ -629,5 +629,98 @@ p {
 }
 
 .sort-option.active {
+  color: #e8a838;
+}
+
+#autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2f2f2f;
+  border: 1px solid #3f3f3f;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  z-index: 100;
+  display: none;
+  overflow: hidden;
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-transform: capitalize;
+}
+
+.autocomplete-item:hover {
+  background: #3f3f3f;
+  color: #e8a838;
+}
+
+.left-panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
+}
+
+#recipe-sort-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: all 0.2s ease;
+}
+
+#recipe-sort-btn:hover {
+  border-color: #e8a838;
+  color: #e8a838;
+}
+
+#recipe-sort-menu {
+  display: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
+}
+
+#recipe-sort-menu.visible {
+  display: block;
+}
+
+.recipe-sort-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.recipe-sort-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8a838;
+}
+
+.recipe-sort-option.active {
   color: #e8a838;
 }

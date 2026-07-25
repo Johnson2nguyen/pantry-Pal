@@ -1,4 +1,4 @@
-let ingredients = [];
+let ingredients = JSON.parse(localStorage.getItem("ingredients")) || [];
 let matchedRecipes = [];
 let currentRecipeIndex = null;
 let savedRecipes = JSON.parse(localStorage.getItem("savedRecipes")) || [];
@@ -7,6 +7,139 @@ let savedPanelOpen = false;
 let currentSort = "recent";
 let sortMenuOpen = false;
 let sortDirections = { az: "asc", recent: "desc" };
+
+renderTags();
+
+const allIngredients = [
+  "eggs",
+  "spinach",
+  "garlic",
+  "olive oil",
+  "salt",
+  "pepper",
+  "pasta",
+  "parsley",
+  "tomato",
+  "onion",
+  "butter",
+  "milk",
+  "cheese",
+  "chicken",
+  "beef",
+  "pork",
+  "bacon",
+  "shrimp",
+  "salmon",
+  "tuna",
+  "bread",
+  "flour",
+  "sugar",
+  "honey",
+  "lemon",
+  "lime",
+  "orange",
+  "apple",
+  "banana",
+  "avocado",
+  "potato",
+  "sweet potato",
+  "carrot",
+  "celery",
+  "broccoli",
+  "cauliflower",
+  "zucchini",
+  "mushroom",
+  "bell pepper",
+  "jalapeño",
+  "cucumber",
+  "lettuce",
+  "kale",
+  "cabbage",
+  "corn",
+  "peas",
+  "green beans",
+  "asparagus",
+  "beets",
+  "radish",
+  "turnip",
+  "ginger",
+  "turmeric",
+  "cumin",
+  "paprika",
+  "oregano",
+  "basil",
+  "thyme",
+  "rosemary",
+  "bay leaf",
+  "cinnamon",
+  "nutmeg",
+  "cloves",
+  "vanilla",
+  "cocoa powder",
+  "baking powder",
+  "baking soda",
+  "yeast",
+  "rice",
+  "quinoa",
+  "oats",
+  "breadcrumbs",
+  "panko",
+  "cornstarch",
+  "vegetable oil",
+  "coconut oil",
+  "sesame oil",
+  "soy sauce",
+  "fish sauce",
+  "worcestershire sauce",
+  "hot sauce",
+  "ketchup",
+  "mustard",
+  "mayonnaise",
+  "vinegar",
+  "balsamic vinegar",
+  "white wine",
+  "red wine",
+  "beer",
+  "chicken broth",
+  "beef broth",
+  "vegetable broth",
+  "coconut milk",
+  "heavy cream",
+  "sour cream",
+  "cream cheese",
+  "parmesan",
+  "mozzarella",
+  "cheddar",
+  "feta",
+  "tofu",
+  "chickpeas",
+  "black beans",
+  "kidney beans",
+  "lentils",
+  "almonds",
+  "walnuts",
+  "cashews",
+  "peanuts",
+  "peanut butter",
+  "tahini",
+  "hummus",
+  "tortillas",
+  "pita bread",
+  "noodles",
+  "couscous",
+  "strawberry",
+  "blueberry",
+  "raspberry",
+  "mango",
+  "pineapple",
+  "peach",
+  "grapes",
+  "watermelon",
+  "cantaloupe",
+  "pomegranate",
+  "kiwi",
+  "papaya",
+];
 
 const recipes = [
   {
@@ -52,11 +185,13 @@ function addIngredient() {
   ingredients.push(value);
   input.value = "";
   renderTags();
+  localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
 function removeIngredient(item) {
   ingredients = ingredients.filter((i) => i !== item);
   renderTags();
+  localStorage.setItem("ingredients", JSON.stringify(ingredients));
 }
 
 function renderTags() {
@@ -117,7 +252,18 @@ function findRecipes() {
   document.getElementById("left-panel").classList.add("has-recipes");
 
   resultsDiv.innerHTML = `
-    <div class="left-panel-title">Recipes (${matchedRecipes.length})</div>
+    <div class="left-panel-title">
+      <span>Recipes (${matchedRecipes.length})</span>
+      <button id="recipe-sort-btn" onclick="toggleRecipeSortMenu()">⇅ Sort</button>
+    </div>
+    <div id="recipe-sort-menu">
+      <div class="recipe-sort-option" onclick="sortRecipes('az', event)">
+        <span>Alphabetical</span><span id="recipe-az-arrow">↑</span>
+      </div>
+      <div class="recipe-sort-option active" onclick="sortRecipes('match', event)">
+        <span>Best Match</span><span id="match-arrow">↓</span>
+      </div>
+    </div>
     ${matchedRecipes
       .map(
         (recipe, index) => `
@@ -388,7 +534,11 @@ document.getElementById("left-panel").addEventListener("click", function (e) {
 });
 
 document.getElementById("ingredient-input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") addIngredient();
+  if (e.key === "Enter") {
+    addIngredient();
+    const dropdown = document.getElementById("autocomplete-dropdown");
+    if (dropdown) dropdown.style.display = "none";
+  }
 });
 
 if (savedRecipes.length > 0) {
@@ -397,8 +547,9 @@ if (savedRecipes.length > 0) {
 
 function clearIngredients() {
   ingredients = [];
-  renderTags();
+  localStorage.removeItem("ingredients");
   document.getElementById("ingredient-input").value = "";
+  renderTags();
 }
 
 function updateSavedCount() {
@@ -412,3 +563,127 @@ function updateSavedCount() {
 }
 
 updateSavedCount();
+
+function handleAutocomplete() {
+  const input = document.getElementById("ingredient-input");
+  const value = input.value.trim().toLowerCase();
+  let dropdown = document.getElementById("autocomplete-dropdown");
+
+  if (!dropdown) {
+    dropdown = document.createElement("div");
+    dropdown.id = "autocomplete-dropdown";
+    input.parentNode.appendChild(dropdown);
+  }
+
+  if (!value) {
+    dropdown.innerHTML = "";
+    dropdown.style.display = "none";
+    return;
+  }
+
+  const matches = allIngredients
+    .filter((ing) => ing.startsWith(value) && !ingredients.includes(ing))
+    .slice(0, 5);
+
+  if (matches.length === 0) {
+    dropdown.style.display = "none";
+    return;
+  }
+
+  dropdown.innerHTML = matches
+    .map(
+      (match) => `
+    <div class="autocomplete-item" onclick="selectSuggestion('${match}')">
+      ${match}
+    </div>
+  `,
+    )
+    .join("");
+
+  dropdown.style.display = "block";
+}
+
+function selectSuggestion(value) {
+  document.getElementById("ingredient-input").value = value;
+  document.getElementById("autocomplete-dropdown").style.display = "none";
+  addIngredient();
+}
+
+document.addEventListener("click", function (e) {
+  const dropdown = document.getElementById("autocomplete-dropdown");
+  const input = document.getElementById("ingredient-input");
+  if (dropdown && e.target !== input) {
+    dropdown.style.display = "none";
+  }
+});
+
+let recipeSortMenuOpen = false;
+let currentRecipeSort = "match";
+let recipeSortDirections = { match: "desc", az: "asc" };
+
+function toggleRecipeSortMenu() {
+  const menu = document.getElementById("recipe-sort-menu");
+  recipeSortMenuOpen = !recipeSortMenuOpen;
+  recipeSortMenuOpen
+    ? menu.classList.add("visible")
+    : menu.classList.remove("visible");
+}
+
+function sortRecipes(type, e) {
+  recipeSortDirections[type] =
+    recipeSortDirections[type] === "asc" ? "desc" : "asc";
+  currentRecipeSort = type;
+
+  document.getElementById("match-arrow").textContent =
+    recipeSortDirections.match === "desc" ? "↓" : "↑";
+  document.getElementById("recipe-az-arrow").textContent =
+    recipeSortDirections.az === "asc" ? "↑" : "↓";
+
+  document
+    .querySelectorAll(".recipe-sort-option")
+    .forEach((el) => el.classList.remove("active"));
+  e.currentTarget.classList.add("active");
+
+  renderRecipeList();
+}
+
+function renderRecipeList() {
+  const resultsDiv = document.getElementById("recipe-list");
+  let sorted = [...matchedRecipes];
+
+  if (currentRecipeSort === "az") {
+    sorted.sort((a, b) =>
+      recipeSortDirections.az === "asc"
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name),
+    );
+  } else {
+    sorted.sort((a, b) =>
+      recipeSortDirections.match === "desc"
+        ? b.percent - a.percent
+        : a.percent - b.percent,
+    );
+  }
+
+  const existingTitle = resultsDiv.querySelector(".left-panel-title");
+  const existingSortMenu = resultsDiv.querySelector("#recipe-sort-menu");
+
+  const items = sorted
+    .map(
+      (recipe, index) => `
+    <div class="recipe-list-item" onclick="showRecipe(${matchedRecipes.indexOf(recipe)})" id="recipe-item-${matchedRecipes.indexOf(recipe)}">
+      <h3>${recipe.name}</h3>
+      <div class="match-bar-bg">
+        <div class="match-bar-fill" style="width: ${recipe.percent}%"></div>
+      </div>
+      <span class="match-label">${recipe.percent}% match · ${recipe.have.length}/${recipe.ingredients.length} ingredients</span>
+    </div>
+  `,
+    )
+    .join("");
+
+  const allItems = resultsDiv.querySelectorAll(".recipe-list-item");
+  allItems.forEach((el) => el.remove());
+
+  resultsDiv.insertAdjacentHTML("beforeend", items);
+}
