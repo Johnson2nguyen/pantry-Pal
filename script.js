@@ -213,7 +213,7 @@ function renderTags() {
   });
 }
 
-function findRecipes() {
+async function findRecipes() {
   const resultsDiv = document.getElementById("recipe-list");
 
   if (ingredients.length === 0) {
@@ -222,62 +222,87 @@ function findRecipes() {
     return;
   }
 
-  matchedRecipes = recipes
-    .filter((recipe) =>
-      recipe.ingredients.some((ing) => ingredients.includes(ing)),
-    )
-    .map((recipe) => {
-      const have = recipe.ingredients.filter((ing) =>
-        ingredients.includes(ing),
-      );
-      const percent = Math.round(
-        (have.length / recipe.ingredients.length) * 100,
-      );
-      return {
-        ...recipe,
-        have,
-        missing: recipe.ingredients.filter((ing) => !ingredients.includes(ing)),
-        percent,
-      };
-    })
-    .sort((a, b) => b.percent - a.percent);
-
-  if (matchedRecipes.length === 0) {
-    resultsDiv.innerHTML =
-      "<p style='color:rgba(255,255,255,0.4);padding:12px'>No recipes found. Try adding more ingredients!</p>";
-    return;
-  }
-
   document.getElementById("left-panel").classList.add("visible");
   document.getElementById("left-panel").classList.add("has-recipes");
+  resultsDiv.innerHTML =
+    "<p style='color:rgba(255,255,255,0.4);padding:12px'>Finding recipes...</p>";
 
-  resultsDiv.innerHTML = `
-    <div class="left-panel-title">
-      <span>Recipes (${matchedRecipes.length})</span>
-      <button id="recipe-sort-btn" onclick="toggleRecipeSortMenu()">⇅ Sort</button>
-    </div>
-    <div id="recipe-sort-menu">
-      <div class="recipe-sort-option" onclick="sortRecipes('az', event)">
-        <span>Alphabetical</span><span id="recipe-az-arrow">↑</span>
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a recipe generator. Always respond with valid JSON only, no markdown, no backticks, no explanation.",
+          },
+          {
+            role: "user",
+            content: `I have these ingredients: ${ingredients.join(", ")}. 
+            Generate 15 recipes. For each recipe return a JSON array with objects containing:
+            - name (string)
+            - ingredients (array of all ingredients needed)
+            - have (array of ingredients from my list that the recipe uses)
+            - missing (array of ingredients the recipe needs that I don't have)
+            - steps (array of step by step instructions)
+            - percent (number 0-100 representing how many ingredients I have)
+            
+            Return ONLY a JSON array, nothing else.`,
+          },
+        ],
+        max_tokens: 2000,
+      }),
+    });
+
+    const data = await response.json();
+    const text = data.choices[0].message.content;
+    matchedRecipes = JSON.parse(text);
+    matchedRecipes.sort((a, b) => b.percent - a.percent);
+
+    if (matchedRecipes.length === 0) {
+      resultsDiv.innerHTML =
+        "<p style='color:rgba(255,255,255,0.4);padding:12px'>No recipes found. Try adding more ingredients!</p>";
+      return;
+    }
+
+    resultsDiv.innerHTML = `
+      <div class="left-panel-title">
+        <span>Recipes (${matchedRecipes.length})</span>
+        <button id="recipe-sort-btn" onclick="toggleRecipeSortMenu()">⇅ Sort</button>
       </div>
-      <div class="recipe-sort-option active" onclick="sortRecipes('match', event)">
-        <span>Best Match</span><span id="match-arrow">↓</span>
-      </div>
-    </div>
-    ${matchedRecipes
-      .map(
-        (recipe, index) => `
-      <div class="recipe-list-item" onclick="showRecipe(${index})" id="recipe-item-${index}">
-        <h3>${recipe.name}</h3>
-        <div class="match-bar-bg">
-          <div class="match-bar-fill" style="width: ${recipe.percent}%"></div>
+      <div id="recipe-sort-menu">
+        <div class="recipe-sort-option" onclick="sortRecipes('az', event)">
+          <span>Alphabetical</span><span id="recipe-az-arrow">↑</span>
         </div>
-        <span class="match-label">${recipe.percent}% match · ${recipe.have.length}/${recipe.ingredients.length} ingredients</span>
+        <div class="recipe-sort-option active" onclick="sortRecipes('match', event)">
+          <span>Best Match</span><span id="match-arrow">↓</span>
+        </div>
       </div>
-    `,
-      )
-      .join("")}
-  `;
+      ${matchedRecipes
+        .map(
+          (recipe, index) => `
+        <div class="recipe-list-item" onclick="showRecipe(${index})" id="recipe-item-${index}">
+          <h3>${recipe.name}</h3>
+          <div class="match-bar-bg">
+            <div class="match-bar-fill" style="width: ${recipe.percent}%"></div>
+          </div>
+          <span class="match-label">${recipe.percent}% match · ${recipe.have.length}/${recipe.ingredients.length} ingredients</span>
+        </div>
+      `,
+        )
+        .join("")}
+    `;
+  } catch (error) {
+    console.error("Error:", error);
+    resultsDiv.innerHTML =
+      "<p style='color:rgba(255,255,255,0.4);padding:12px'>Something went wrong. Please try again.</p>";
+  }
 }
 
 function showRecipe(index) {
