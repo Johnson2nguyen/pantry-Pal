@@ -8,7 +8,7 @@
   </head>
   <body>
     <header>
-      <h1>
+      <h1 onclick="location.reload()" style="cursor: pointer">
         <span id="logo-emoji">🥘</span>
         <span class="pantry">Pantry</span><span class="pal">Pal</span>
         <span id="header-name">Johnson Nguyen</span>
@@ -43,6 +43,10 @@
 
     <div id="app">
       <div id="left-panel">
+        <div id="loading-state">
+          <div class="spinner"></div>
+          <span class="loading-text">Finding recipes...</span>
+        </div>
         <div id="recipe-list"></div>
       </div>
 
@@ -67,6 +71,26 @@
               ✕
             </button>
             <div id="ingredient-tags"></div>
+          </div>
+          <div id="dietary-filters">
+            <span id="dietary-label">Dietary Preferences</span>
+            <div id="dietary-options">
+              <label class="dietary-option">
+                <input type="checkbox" value="vegetarian" /> Vegetarian
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="vegan" /> Vegan
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="gluten-free" /> Gluten-Free
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="dairy-free" /> Dairy-Free
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="high-protein" /> High Protein
+              </label>
+            </div>
           </div>
           <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
         </div>
