@@ -371,46 +371,25 @@ async function fetchRecipeImage(recipeName) {
   try {
     const tryFetch = async (query) => {
       const response = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`,
-        {
-          headers: {
-            Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
-          },
-        },
+        `http://localhost:5000/api/recipes/image?query=${encodeURIComponent(query)}`,
       );
-
-      if (response.status === 403 || response.status === 401) {
-        console.warn("Unsplash rate limit hit or unauthorized");
-        return null;
-      }
-
       const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        return data.results.reduce((prev, curr) => {
-          const prevRatio = prev.width / prev.height;
-          const currRatio = curr.width / curr.height;
-          return Math.abs(currRatio - 1.6) < Math.abs(prevRatio - 1.6)
-            ? curr
-            : prev;
-        });
-      }
-      return null;
+      return data.url || null;
     };
 
-    let result = await tryFetch(recipeName + " food dish plate");
-    if (!result) {
+    let url = await tryFetch(recipeName + " food dish plate");
+    if (!url) {
       const firstWord = recipeName.split(" ")[0];
-      result = await tryFetch(firstWord + " food");
+      url = await tryFetch(firstWord + " food");
     }
-    if (!result) {
-      result = await tryFetch("food dish");
+    if (!url) {
+      url = await tryFetch("food dish");
     }
 
-    const url = result ? result.urls.regular : null;
     if (url) imageCache[recipeName] = url;
     return url;
   } catch (error) {
-    console.error("Unsplash error:", error);
+    console.error("Image fetch error:", error);
     return null;
   }
 }

@@ -49,7 +49,7 @@ router.post("/generate", async (req, res) => {
             Return ONLY a JSON array, nothing else.`,
           },
         ],
-        max_tokens: 3000,
+        max_tokens: 5000,
       }),
     });
 
@@ -66,6 +66,43 @@ router.post("/generate", async (req, res) => {
     return res
       .status(500)
       .json({ error: "Failed to generate recipes", details: error.message });
+  }
+});
+
+router.get("/image", async (req, res) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ error: "No query provided" });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`,
+      {
+        headers: {
+          Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`,
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    if (data.results && data.results.length > 0) {
+      const best = data.results.reduce((prev, curr) => {
+        const prevRatio = prev.width / prev.height;
+        const currRatio = curr.width / curr.height;
+        return Math.abs(currRatio - 1.6) < Math.abs(prevRatio - 1.6)
+          ? curr
+          : prev;
+      });
+      return res.json({ url: best.urls.regular });
+    }
+
+    return res.json({ url: null });
+  } catch (error) {
+    console.error("Unsplash error:", error);
+    return res.status(500).json({ error: "Failed to fetch image" });
   }
 });
 
