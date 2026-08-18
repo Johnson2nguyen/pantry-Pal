@@ -276,11 +276,22 @@ async function findRecipes() {
       }),
     });
 
+    const parsed = await response.json();
+
+    if (parsed.error === "invalid_ingredients") {
+      loadingState.classList.remove("visible");
+      resultsDiv.innerHTML = `
+            <div style='padding: 20px 16px'>
+              <p style='color:#e05555;font-size:14px;margin-bottom:8px'>Some ingredients weren't recognized:</p>
+              <p style='color:rgba(255,255,255,0.4);font-size:12px'>${parsed.invalid.join(", ")}</p>
+            </div>
+          `;
+      return;
+    }
+
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
-
-    const parsed = await response.json();
 
     matchedRecipes = parsed.map((recipe) => {
       const have = recipe.ingredients.filter((ing) =>
@@ -569,15 +580,6 @@ function showRecipe(index) {
       }
     });
   });
-
-  fetchRecipeImage(recipe.name).then((imageUrl) => {
-    const container = document.getElementById("recipe-image-container");
-    if (imageUrl) {
-      container.innerHTML = `<img src="${imageUrl}" alt="${recipe.name}" class="recipe-image" />`;
-    } else {
-      container.innerHTML = "";
-    }
-  });
 }
 
 function showSavedRecipe(index) {
@@ -684,15 +686,6 @@ function showSavedRecipe(index) {
         }
       }
     });
-  });
-
-  fetchRecipeImage(recipe.name).then((imageUrl) => {
-    const container = document.getElementById("recipe-image-container");
-    if (imageUrl) {
-      container.innerHTML = `<img src="${imageUrl}" alt="${recipe.name}" class="recipe-image" />`;
-    } else {
-      container.innerHTML = "";
-    }
   });
 }
 

@@ -23,6 +23,51 @@ router.post("/generate", async (req, res) => {
   }
 
   try {
+    const validationResponse = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a strict food ingredient validator. Respond with ONLY valid JSON, nothing else.",
+            },
+            {
+              role: "user",
+              content: `Check this list of items: ${ingredients.join(", ")}.
+            
+            For each item, determine if it is a real, recognizable food or cooking ingredient (including uncommon but real ones like cellulose, gelatin, gochujang, xanthan gum, nutritional yeast, MSG, agar agar, etc).
+            
+            Respond with ONLY this JSON format:
+            {"valid": true} if ALL items are real ingredients
+            {"valid": false, "invalid": ["item1", "item2"]} if any items are gibberish, random characters, or not real food ingredients
+            
+            Return ONLY the JSON, nothing else.`,
+            },
+          ],
+          max_tokens: 200,
+        }),
+      },
+    );
+
+    const validationData = await validationResponse.json();
+    const validationText = validationData.choices[0].message.content;
+    const validationResult = JSON.parse(validationText);
+
+    if (!validationResult.valid) {
+      return res.status(400).json({
+        error: "invalid_ingredients",
+        invalid: validationResult.invalid,
+      });
+    }
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -41,12 +86,28 @@ router.post("/generate", async (req, res) => {
             role: "user",
             content: `I have these ingredients: ${ingredients.join(", ")}. 
             ${dietaryText}
-            Generate 15 recipes with a MIX of match levels — some recipes I can make with exactly what I have, some that need 1-2 more ingredients, and some that need several more ingredients but are inspired by what I have. Be creative and diverse with recipe types. For each recipe return a JSON array with objects containing:
+
+            Generate 15 recipes with a MIX of match levels — some recipes I can make with exactly what I have, some that need 1-2 more ingredients, and some that need several more ingredients but are inspired by what I have. Be creative and diverse with recipe types across different cuisines (not just one cultural style every time).
+
+            NAMING RULES:
+            - If the ingredients clearly and specifically match a well-known traditional or cultural dish from ANY cuisine (Vietnamese, Thai, Italian, Mexican, Indian, Japanese, Korean, French, etc.), use that dish's accurate, commonly recognized name instead of a generic descriptive name. Examples: "Pho" not "Beef Noodle Soup", "Pad Thai" not "Thai Noodle Stir-Fry", "Carbonara" not "Bacon Egg Pasta", "Bibimbap" not "Korean Rice Bowl".
+            - Only use a traditional dish name if the ingredients genuinely and closely match that dish's real recipe — do not force a cultural name onto a random ingredient combination that doesn't actually resemble that dish.
+            - If no traditional dish matches, use a clear, appetizing, descriptive name instead.
+
+            INGREDIENT RULES:
+            - Every recipe must prominently use at least one of my listed ingredients.
+            - Do not silently substitute or ignore an ingredient I listed — if it's unusual, build a recipe around it rather than skipping it.
+
+            STEP RULES:
+            - Steps must be an array of individual, single-action instructions. Never combine two actions into one step (e.g. "Preheat the oven and season the chicken" must be two separate steps).
+            - Each step should be 2-3 sentences with specific temperatures, times, and visual/sensory cues like a professional recipe writer would use.
+
+            For each recipe return a JSON array with objects containing:
             - name (string)
             - ingredients (array of all ingredients needed)
-            - steps (array of detailed, descriptive cooking instructions. Each step must cover ONE single action only — never combine multiple actions into one step. Split them out. Each step should be 2-3 sentences long with specific temperatures, times, and visual cues like a professional recipe writer. For example "Preheat your grill" is one step. "Season the chicken" is a separate step. "Cook the chicken for 6-7 minutes until golden" is another separate step. Never write "do X then do Y" in a single step — that should always be two steps.)
-            
-            Return ONLY a JSON array, nothing else.`,
+            - steps (array of detailed, single-action cooking instructions as described above)
+
+            Return ONLY a valid JSON array, nothing else — no markdown, no commentary, no code fences.`,
           },
         ],
         max_tokens: 5000,
