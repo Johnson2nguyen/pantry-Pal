@@ -10,7 +10,7 @@ function RecipeDetail({ recipe, onBack, savedRecipes, onToggleFavorite }) {
         {isSaved ? "✕ Remove from Saved" : "♡ Save Recipe"}
       </button>
 
-      <h2>{recipe.name}</h2>
+      <h2 className="recipe-detail-title">{recipe.name}</h2>
 
       <h3>Ingredients You Have</h3>
       <ul>

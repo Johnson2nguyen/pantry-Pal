@@ -4,6 +4,7 @@ import IngredientInput from "./components/IngredientInput";
 import RecipeList from "./components/RecipeList";
 import RecipeDetail from "./components/RecipeDetail";
 import SavedRecipes from "./components/SavedRecipes";
+import DietaryFilters from "./components/DietaryFilters";
 import "./App.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   const [savedRecipes, setSavedRecipes] = useState(
     JSON.parse(localStorage.getItem("savedRecipes")) || [],
   );
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
   function toggleFavorite(recipe) {
     const alreadySaved = savedRecipes.some((r) => r.name === recipe.name);
@@ -47,6 +49,10 @@ function App() {
             ingredients={ingredients}
             setIngredients={setIngredients}
           />
+          <DietaryFilters
+            selectedFilters={selectedFilters}
+            setSelectedFilters={setSelectedFilters}
+          />
           <RecipeList
             ingredients={ingredients}
             matchedRecipes={matchedRecipes}
@@ -54,6 +60,7 @@ function App() {
             loading={loading}
             setLoading={setLoading}
             onSelectRecipe={setSelectedRecipe}
+            selectedFilters={selectedFilters}
           />
         </>
       )}

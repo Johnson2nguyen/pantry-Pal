@@ -7,6 +7,7 @@ function RecipeList({
   loading,
   setLoading,
   onSelectRecipe,
+  selectedFilters,
 }) {
   async function findRecipes() {
     if (ingredients.length === 0) return;
@@ -19,7 +20,7 @@ function RecipeList({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ingredients, dietary: [] }),
+          body: JSON.stringify({ ingredients, dietary: selectedFilters }),
         },
       );
 
