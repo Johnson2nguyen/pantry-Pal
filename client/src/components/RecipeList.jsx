@@ -9,6 +9,9 @@ function RecipeList({
   onSelectRecipe,
   selectedFilters,
 }) {
+  const [sortBy, setSortBy] = useState("match");
+  const [filterBy, setFilterBy] = useState("all");
+
   async function findRecipes() {
     if (ingredients.length === 0) return;
 
@@ -44,7 +47,6 @@ function RecipeList({
         return { ...recipe, have, missing, percent };
       });
 
-      withMatch.sort((a, b) => b.percent - a.percent);
       setMatchedRecipes(withMatch);
     } catch (error) {
       console.error("Error:", error);
@@ -53,16 +55,72 @@ function RecipeList({
     }
   }
 
+  let displayedRecipes = [...matchedRecipes];
+
+  if (sortBy === "az") {
+    displayedRecipes.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    displayedRecipes.sort((a, b) => b.percent - a.percent);
+  }
+
+  if (filterBy === "ready") {
+    displayedRecipes = displayedRecipes.filter((r) => r.percent === 100);
+  } else if (filterBy === "close") {
+    displayedRecipes = displayedRecipes.filter(
+      (r) => r.missing.length <= 3 && r.percent < 100,
+    );
+  }
+
   return (
     <div>
       <button onClick={findRecipes}>Find Recipes</button>
 
       {loading && <p>Finding recipes...</p>}
 
-      {matchedRecipes.map((recipe, index) => (
+      {matchedRecipes.length > 0 && (
+        <div id="recipe-filter-row">
+          <button
+            className={`filter-btn ${filterBy === "all" ? "active" : ""}`}
+            onClick={() => setFilterBy("all")}
+          >
+            All
+          </button>
+          <button
+            className={`filter-btn ${filterBy === "ready" ? "active" : ""}`}
+            onClick={() => setFilterBy("ready")}
+          >
+            Ready to Cook
+          </button>
+          <button
+            className={`filter-btn ${filterBy === "close" ? "active" : ""}`}
+            onClick={() => setFilterBy("close")}
+          >
+            Need a Few
+          </button>
+        </div>
+      )}
+
+      {matchedRecipes.length > 0 && (
+        <div id="recipe-sort-menu" style={{ display: "block" }}>
+          <div
+            className={`recipe-sort-option ${sortBy === "az" ? "active" : ""}`}
+            onClick={() => setSortBy("az")}
+          >
+            <span>Alphabetical</span>
+          </div>
+          <div
+            className={`recipe-sort-option ${sortBy === "match" ? "active" : ""}`}
+            onClick={() => setSortBy("match")}
+          >
+            <span>Best Match</span>
+          </div>
+        </div>
+      )}
+
+      {displayedRecipes.map((recipe, index) => (
         <div
           className="recipe-list-item"
-          key={index}
+          key={recipe.name}
           onClick={() => onSelectRecipe(recipe)}
         >
           <h3>{recipe.name}</h3>
