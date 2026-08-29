@@ -1,4 +1,30 @@
+import { useState, useEffect } from "react";
+
 function RecipeDetail({ recipe, onBack, savedRecipes, onToggleFavorite }) {
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (!recipe) return;
+
+    setImageUrl(null);
+
+    async function fetchImage() {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/recipes/image?query=${encodeURIComponent(
+            recipe.name + " food dish plate",
+          )}`,
+        );
+        const data = await response.json();
+        setImageUrl(data.url);
+      } catch (error) {
+        console.error("Image fetch error:", error);
+      }
+    }
+
+    fetchImage();
+  }, [recipe]);
+
   if (!recipe) return null;
 
   const isSaved = savedRecipes.some((r) => r.name === recipe.name);
@@ -9,6 +35,12 @@ function RecipeDetail({ recipe, onBack, savedRecipes, onToggleFavorite }) {
       <button onClick={() => onToggleFavorite(recipe)}>
         {isSaved ? "✕ Remove from Saved" : "♡ Save Recipe"}
       </button>
+
+      {imageUrl ? (
+        <img src={imageUrl} alt={recipe.name} className="recipe-image" />
+      ) : (
+        <div className="recipe-image-placeholder">Loading image...</div>
+      )}
 
       <h2 className="recipe-detail-title">{recipe.name}</h2>
 
