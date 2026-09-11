@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PantryPal</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 onclick="location.reload()" style="cursor: pointer">
+        <span id="logo-emoji">🥘</span>
+        <span class="pantry">Pantry</span><span class="pal">Pal</span>
+        <span id="header-name">Johnson Nguyen</span>
+      </h1>
+      <p>Turn what's in your kitchen into your next meal</p>
+    </header>
+
+    <div id="saved-btn" onclick="toggleSaved()">
+      📖 Saved Recipes <span id="saved-count"></span>
+    </div>
+
+    <div id="saved-panel">
+      <div id="saved-panel-header">
+        <span>📖 Saved Recipes</span>
+        <div id="saved-header-actions">
+          <button id="sort-btn" 
+          onclick="toggleSortMenu()">⇅ Sort</button>
+          <button id="close-saved-btn" onclick="toggleSaved()">✕</button>
+        </div>
+      </div>
+      <div id="sort-menu">
+        <div class="sort-option" onclick="sortSaved('az')">
+          <span>Alphabetical</span>
+          <span id="az-arrow">↑</span>
+        </div>
+        <div class="sort-option" onclick="sortSaved('recent')">
+          <span>Most Recent</span>
+          <span id="recent-arrow">↑</span>
+        </div>
+      </div>
+      <div id="saved-list"></div>
+    </div>
+
+    <div id="app">
+      <div id="left-panel">
+        <div id="loading-state">
+          <div class="spinner"></div>
+          <span class="loading-text">Finding recipes...</span>
+        </div>
+        <div id="recipe-list"></div>
+      </div>
+
+      <div id="right-panel">
+        <div id="search-view">
+          <p id="input-label">Enter your ingredients here</p>
+          <div class="input-section">
+            <input
+              type="text"
+              id="ingredient-input"
+              placeholder="e.g. eggs, spinach, garlic"
+              oninput="handleAutocomplete()"
+            />
+            <button onclick="addIngredient()" id="add-btn">Add</button>
+          </div>
+          <div id="tags-row">
+            <button
+              id="clear-btn"
+              onclick="clearIngredients()"
+              title="Clear all ingredients"
+            >
+              ✕
+            </button>
+            <div id="ingredient-tags"></div>
+          </div>
+          <div id="dietary-filters">
+            <span id="dietary-label">Dietary Preferences</span>
+            <div id="dietary-options">
+              <label class="dietary-option">
+                <input type="checkbox" value="vegetarian" /> Vegetarian
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="vegan" /> Vegan
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="gluten-free" /> Gluten-Free
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="dairy-free" /> Dairy-Free
+              </label>
+              <label class="dietary-option">
+                <input type="checkbox" value="high-protein" /> High Protein
+              </label>
+            </div>
+          </div>
+          <button id="find-btn" onclick="findRecipes()">Find Recipes</button>
+        </div>
+
+        <div id="detail-view">
+          <div id="detail-top-bar">
+            <button id="back-btn" onclick="goBack()">← Back</button>
+            <button id="fav-btn" onclick="toggleFavorite()">
+              ♡ Save Recipe
+            </button>
+          </div>
+          <div id="recipe-detail"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
