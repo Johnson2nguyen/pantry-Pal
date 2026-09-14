@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:wght@600;700&display=swap");
 
 * {
   margin: 0;
@@ -7,7 +7,7 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   padding: 0;
   background-image: url("pantryBackground.png");
   background-repeat: repeat;
@@ -220,7 +220,7 @@ p {
   font-size: 16px;
   color: #ffffff;
   outline: none;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 .input-section input::placeholder {
@@ -239,7 +239,7 @@ p {
   color: #ffffff;
   border: none;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 #add-btn:hover {
@@ -286,7 +286,7 @@ p {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   margin-top: 0px;
 }
 
@@ -328,7 +328,7 @@ p {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 #back-btn:hover {
@@ -426,9 +426,11 @@ p {
   border-radius: 8px;
   padding: 9px 10px;
   font-size: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   cursor: pointer;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 #saved-btn:hover {
@@ -477,7 +479,7 @@ p {
   color: rgba(255, 255, 255, 0.4);
   font-size: 16px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 #close-saved-btn:hover {
@@ -526,7 +528,7 @@ p {
   color: rgba(255, 255, 255, 0.3);
   font-size: 18px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   padding: 0 4px;
 }
 
@@ -555,7 +557,7 @@ p {
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 13px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -583,7 +585,7 @@ p {
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -665,7 +667,7 @@ p {
   border-radius: 6px;
   padding: 3px 8px;
   font-size: 11px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   cursor: pointer;
   text-transform: none;
   letter-spacing: 0;
@@ -732,7 +734,7 @@ p {
 .loading-text {
   color: rgba(255, 255, 255, 0.4);
   font-size: 13px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 .recipe-image {
@@ -755,7 +757,7 @@ p {
   justify-content: center;
   color: #b5a090;
   font-size: 13px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 #recipe-filter-row {
@@ -772,7 +774,7 @@ p {
   border-radius: 20px;
   padding: 4px 10px;
   font-size: 11px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -963,7 +965,7 @@ p {
   justify-content: center;
   color: #b5a090;
   font-size: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   flex-shrink: 0;
 }
 

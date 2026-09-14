@@ -41,7 +41,22 @@ function SavedRecipes({ savedRecipes, setSavedRecipes, onSelectRecipe }) {
   return (
     <div>
       <div id="saved-btn" onClick={() => setOpen(!open)}>
-        📖 Saved Recipes{" "}
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9 4C7.5 3 5 2.5 2 3V13C5 12.5 7.5 13 9 14C10.5 13 13 12.5 16 13V3C13 2.5 10.5 3 9 4Z"
+            stroke="#e8a838"
+            stroke-width="1.3"
+            stroke-linejoin="round"
+          />
+          <path d="M9 4V14" stroke="#e8a838" stroke-width="1.3" />
+        </svg>
+        Saved Recipes{" "}
         {savedRecipes.length > 0 && (
           <span id="saved-count">{savedRecipes.length}</span>
         )}
@@ -50,7 +65,7 @@ function SavedRecipes({ savedRecipes, setSavedRecipes, onSelectRecipe }) {
       {open && (
         <div id="saved-panel" className="visible">
           <div id="saved-panel-header">
-            <span>📖 Saved Recipes</span>
+            <span>Saved Recipes</span>
             <div id="saved-header-actions">
               <button
                 id="sort-btn"
