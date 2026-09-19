@@ -147,10 +147,27 @@ const imageCache = {};
 function addIngredient() {
   const input = document.getElementById("ingredient-input");
   const value = input.value.trim().toLowerCase();
-  if (!value || ingredients.includes(value)) {
+  const errorEl = document.getElementById("input-error");
+
+  if (!value) {
+    input.value = "";
+    if (errorEl) errorEl.textContent = "";
+    return;
+  }
+
+  if (value.length > 50) {
+    if (errorEl)
+      errorEl.textContent = "Ingredient name is too long (max 50 characters)";
+    return;
+  }
+
+  if (ingredients.includes(value)) {
+    if (errorEl) errorEl.textContent = "You already added that ingredient";
     input.value = "";
     return;
   }
+
+  if (errorEl) errorEl.textContent = "";
   ingredients.push(value);
   input.value = "";
   renderTags();
@@ -276,16 +293,26 @@ async function findRecipes() {
       }),
     });
 
+    if (response.status === 429) {
+      loadingState.classList.remove("visible");
+      resultsDiv.innerHTML = `
+        <div style='padding: 20px 16px'>
+          <p style='color:#e05555;font-size:14px'>You're making requests too quickly. Please wait a bit and try again.</p>
+        </div>
+      `;
+      return;
+    }
+
     const parsed = await response.json();
 
     if (parsed.error === "invalid_ingredients") {
       loadingState.classList.remove("visible");
       resultsDiv.innerHTML = `
-            <div style='padding: 20px 16px'>
-              <p style='color:#e05555;font-size:14px;margin-bottom:8px'>Some ingredients weren't recognized:</p>
-              <p style='color:rgba(255,255,255,0.4);font-size:12px'>${parsed.invalid.join(", ")}</p>
-            </div>
-          `;
+        <div style='padding: 20px 16px'>
+          <p style='color:#e05555;font-size:14px;margin-bottom:8px'>Some ingredients weren't recognized:</p>
+          <p style='color:rgba(255,255,255,0.4);font-size:12px'>${parsed.invalid.join(", ")}</p>
+        </div>
+      `;
       return;
     }
 

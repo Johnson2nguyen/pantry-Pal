@@ -54,6 +54,17 @@ function RecipeList({
         <div id="loading-state">
           <div className="spinner"></div>
           <span className="loading-text">Finding recipes...</span>
+          <span
+            style={{
+              fontSize: "11px",
+              color: "rgba(255,255,255,0.3)",
+              lineHeight: "1.5",
+              textAlign: "center",
+            }}
+          >
+            Recipes are AI-generated using OpenAI, and photos come from
+            Unsplash. Recipes may contain small errors.
+          </span>
         </div>
       )}
       {invalidIngredients && (
@@ -61,7 +72,7 @@ function RecipeList({
           <p
             style={{ color: "#e05555", fontSize: "14px", marginBottom: "8px" }}
           >
-            Some ingredients weren't recognized:
+            Ingredients not recognized:
           </p>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>
             {invalidIngredients.join(", ")}

@@ -133,6 +133,7 @@ const allIngredients = [
 
 function IngredientInput({ ingredients, setIngredients }) {
   const [inputValue, setInputValue] = useState("");
+  const [inputError, setInputError] = useState("");
 
   const suggestions =
     inputValue.trim().length > 0
@@ -147,10 +148,24 @@ function IngredientInput({ ingredients, setIngredients }) {
 
   function addIngredient(valueOverride) {
     const value = (valueOverride || inputValue).trim().toLowerCase();
-    if (!value || ingredients.includes(value)) {
+
+    if (!value) {
       setInputValue("");
       return;
     }
+
+    if (value.length > 75) {
+      setInputError("Ingredient name is too long (max 75 characters)");
+      return;
+    }
+
+    if (ingredients.includes(value)) {
+      setInputError("Ingredient already added");
+      setInputValue("");
+      return;
+    }
+
+    setInputError("");
     setIngredients([...ingredients, value]);
     setInputValue("");
   }
@@ -198,6 +213,19 @@ function IngredientInput({ ingredients, setIngredients }) {
           </div>
         )}
       </div>
+
+      {inputError && (
+        <p
+          style={{
+            color: "#c0392b",
+            fontSize: "13px",
+            marginTop: "-8px",
+            marginBottom: "12px",
+          }}
+        >
+          {inputError}
+        </p>
+      )}
 
       <div id="tags-row">
         {ingredients.length > 0 && (

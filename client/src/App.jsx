@@ -44,6 +44,14 @@ function App() {
         },
       );
 
+      if (response.status === 429) {
+        setErrorMessage(
+          "You're making requests too quickly. Please wait a bit and try again.",
+        );
+        setLoading(false);
+        return;
+      }
+
       const parsed = await response.json();
 
       if (parsed.error === "invalid_ingredients") {
