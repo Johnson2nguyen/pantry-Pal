@@ -150,9 +150,7 @@ router.post("/generate", async (req, res) => {
   } catch (error) {
     console.error("OpenAI error:", error.message);
     console.error("Full error:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to generate recipes", details: error.message });
+    return res.status(500).json({ error: "Failed to generate recipes" });
   }
 });
 

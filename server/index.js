@@ -10,10 +10,16 @@ const helmet = require("helmet");
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? "https://your-deployed-frontend-url.com"
+      : "http://localhost:5173",
+};
 
+app.use(helmet());
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "10kb" }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 25,
