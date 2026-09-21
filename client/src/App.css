@@ -9,7 +9,7 @@
 body {
   font-family: "Plus Jakarta Sans", sans-serif;
   padding: 0;
-  background-image: url("pantryBackground.png");
+  background-image: url("/pantryBackground.png");
   background-repeat: repeat;
   background-size: 600px;
   overflow-x: hidden;
