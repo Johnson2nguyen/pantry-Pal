@@ -67,7 +67,7 @@ async function fetchRecipeImage(query) {
   try {
     const tryFetch = async (q) => {
       const response = await fetch(
-        `http://localhost:5000/api/recipes/image?query=${encodeURIComponent(q)}`,
+        `${import.meta.env.VITE_API_URL}/api/recipes/image?query=${encodeURIComponent(q)}`,
       );
       const data = await response.json();
       return data.url || null;
