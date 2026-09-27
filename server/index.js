@@ -20,7 +20,7 @@ const corsOptions = {
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "10kb" }));
-const limiter = rateLimit({
+const generateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 25,
   message: { error: "Too many requests. Please try again later." },
@@ -28,7 +28,17 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use("/api/", limiter);
+const imageLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: "Too many requests. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use("/api/recipes/generate", generateLimiter);
+app.use("/api/recipes/image", imageLimiter);
+
 
 mongoose
   .connect(process.env.MONGODB_URI)

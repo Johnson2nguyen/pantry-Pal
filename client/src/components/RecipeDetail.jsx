@@ -74,6 +74,14 @@ async function fetchRecipeImage(query) {
     };
 
     let url = await tryFetch(query);
+    if (!url) {
+      const firstWord = query.split(" ")[0];
+      url = await tryFetch(firstWord + " food");
+    }
+    if (!url) {
+      url = await tryFetch("food dish");
+    }
+
     if (url) imageCache[query] = url;
     return url;
   } catch (error) {
