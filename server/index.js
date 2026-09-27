@@ -13,7 +13,7 @@ const app = express();
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? "https://thepantrypal.vercel.app"
+      ? "https://expantry.vercel.app"
       : "http://localhost:5173",
 };
 
