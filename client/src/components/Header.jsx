@@ -40,8 +40,7 @@ function Header() {
             <rect x="14" y="8" width="4" height="2" rx="1" fill="#e8a838" />
           </svg>
         </span>
-        <span className="pantry">Pantry</span>
-        <span className="pal">Pal</span>
+        <span className="pal">Expantry</span>
         <span id="header-name">Johnson Nguyen</span>
       </h1>
       <p>Turn what's in your kitchen into your next meal</p>
