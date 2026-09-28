@@ -282,7 +282,7 @@ async function findRecipes() {
       checkedFilters.length > 0
         ? `All recipes MUST be ${checkedFilters.join(", ")}.`
         : "";
-    const response = await fetch("http://localhost:5000/api/recipes/generate", {
+    const response = await fetch("http://localhost:5050/api/recipes/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -409,7 +409,7 @@ async function fetchRecipeImage(recipeName) {
   try {
     const tryFetch = async (query) => {
       const response = await fetch(
-        `http://localhost:5000/api/recipes/image?query=${encodeURIComponent(query)}`,
+        `http://localhost:5050/api/recipes/image?query=${encodeURIComponent(query)}`,
       );
       const data = await response.json();
       return data.url || null;
